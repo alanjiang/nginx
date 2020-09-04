@@ -104,6 +104,49 @@ cat /etc/redhat-release
 
 
 
+dnf install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+dnf -qy module disable postgresql
+dnf install -y postgresql12-server
+/usr/pgsql-12/bin/postgresql-12-setup initdb
+systemctl enable postgresql-12
+systemctl start postgresql-12
+
+
+
+创建一个用户：
+createuser postgres
+mkdir -p /usr/home/data/psql 
+chown -R postgres:postgres /usr/home/data/psql 
+
+#这个很重要
+
+$su posgres
+
+
+$/usr/pgsql-12/bin/initdb -D /usr/home/data/psql
+
+
+systemctl daemon-reload
+systemctl enable postgresql-12
+systemctl start postgresql-12
+
+
+#postgresql会自动完成以下操作：
+
+自动生成一个linux系统用户postgres：管理数据库的系统用户
+
+数据库用户postgres：数据库超级管理员
+
+此用户的默认数据库为postgres
+
+可有修改下默认postgres数据库用户的密码：
+
+
+
+
+
+
+
 
 
 
