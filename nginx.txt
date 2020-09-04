@@ -120,7 +120,7 @@ chown -R postgres:postgres /usr/home/data/psql
 
 #这个很重要
 
-$su posgres
+$su - posgres
 
 
 $/usr/pgsql-12/bin/initdb -D /usr/home/data/psql
@@ -141,7 +141,38 @@ systemctl start postgresql-12
 
 可有修改下默认postgres数据库用户的密码：
 
+$psql
 
+$alter role postgres with password 'psql$_2017';
+
+修改配置，让外部机器可以访问：
+
+(1) vi /usr/home/data/psql/postgresql.conf
+
+
+listen_addresses = '*' 
+
+(2) vi /usr/home/data/psql/pg_hba.conf
+
+#新增下面一行
+host all all 0.0.0.0/0 password # 所有的用户通过任意IP都可以使用面膜的方式登录PostgreSQL
+
+#重启服务：
+systemctl restart postgresql-12
+
+postgres 帐号连接数据库是不需要密码的。
+
+#创建数据库：
+
+create database smart_infra;
+
+
+create user smart_infra with password 'YOUR_PASS';
+
+#把新建的数据库smart_infra权限赋予新用户smart_infra
+
+
+grant all privileges on database smart_infra to smart_infra;
 
 
 
