@@ -179,6 +179,104 @@ grant all privileges on database smart_infra to smart_infra;
 
 
 
+示例：
+
+
+#user  nobody;
+worker_processes  1;
+
+
+error_log  /var/logs/nginx/error.log  info;
+
+pid        /var/pids/nginx.pid;
+
+
+events {
+    worker_connections  1024;
+}
+
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+    
+    proxy_set_header Host $host;
+
+    proxy_set_header X-Real-IP $remote_addr;
+
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+    proxy_set_header X-Forwarded-Proto $scheme;
+    
+    proxy_set_header Upgrade $http_upgrade;      
+    
+    add_header Content-Security-Policy "upgrade-insecure-requests";   
+
+    sendfile        on;
+   
+    keepalive_timeout  65;
+    
+    ssl_certificate      /usr/home/softwares/cer/nginx.crt;
+    ssl_certificate_key  /usr/home/softwares/cer/nginx.key;
+
+
+
+    upstream 域名（不带https//www) {
+      sticky;
+      server localhost:8080 weight=1 max_fails=2 fail_timeout=20s;
+      
+    }
+
+
+   
+    # HTTPS server
+    #
+    server {
+        listen       443 ssl;
+        #listen 443 default ssl; 
+        server_name   codingtechnic.com;
+        ssl_certificate      /usr/home/softwares/cer/nginx.crt;
+        ssl_certificate_key  /usr/home/softwares/cer/nginx.key;
+
+        ssl_session_cache    shared:SSL:1m;
+        ssl_session_timeout  5m;
+
+        ssl_ciphers  HIGH:!aNULL:!MD5;
+        ssl_prefer_server_ciphers  on;
+        
+        location /
+        {
+          proxy_pass http://域名;
+
+        }
+         
+         location ~ ^/(css|excel|fonts|imagecut|images|js|mappc|polypay|social)/ {
+            root   /usr/home/softwares/html/static/;
+            autoindex on;
+            access_log  off;
+            expires     30d;
+        }
+          
+         location /wx/MP_verify_TEgFruJ1Wx8T7Ako.txt {
+                  alias    /usr/home/softwares/html/wx/MP_verify_TEgFruJ1Wx8T7Ako.txt;
+        }
+
+         
+    }
+     server {
+    listen         80;
+    server_name    codingtechnic.com;
+    add_header Strict-Transport-Security max-age=15768000;
+    #return 301 https://$server_name$request_uri;
+    rewrite ^/(.*) https://$server_name$request_uri? permanent;
+    
+    }
+
+}
+
+
+
+
 
 
 
